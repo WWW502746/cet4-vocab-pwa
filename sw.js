@@ -1,4 +1,4 @@
-const CACHE_NAME = "cet4-vocab-v1";
+const CACHE_NAME = "cet4-vocab-v2";
 const APP_FILES = [
   "./",
   "./index.html",

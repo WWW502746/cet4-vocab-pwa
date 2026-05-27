@@ -32,28 +32,47 @@
           </article>
           <article>
             <span id="reviewCount">0</span>
-            <small>待复习</small>
+            <small>复习本</small>
           </article>
           <article>
             <span id="todayCount">0</span>
-            <small>今日学习</small>
+            <small>今日完成</small>
+          </article>
+          <article>
+            <span id="goalCount">0</span>
+            <small>今日目标</small>
           </article>
         </section>
 
         <nav class="tabs" aria-label="模式">
           <button class="tab active" data-view="learn" type="button">学习</button>
           <button class="tab" data-view="quiz" type="button">测试</button>
+          <button class="tab" data-view="review" type="button">复习</button>
           <button class="tab" data-view="list" type="button">词表</button>
+          <button class="tab" data-view="plan" type="button">计划</button>
         </nav>
 
         <section class="panel active" id="learnView">
+          <div class="range-panel">
+            <label>
+              范围
+              <select id="learnRangeMode">
+                <option value="all">全部词汇</option>
+                <option value="new">未掌握</option>
+                <option value="review">复习本</option>
+                <option value="today">今日任务</option>
+                <option value="custom">自选序号</option>
+              </select>
+            </label>
+            <div class="number-pair" id="learnCustomRange">
+              <label>从 <input id="learnStart" type="number" min="1" value="1" /></label>
+              <label>到 <input id="learnEnd" type="number" min="1" value="100" /></label>
+            </div>
+          </div>
+
           <div class="deck-controls">
             <button class="ghost" id="prevBtn" type="button">上一个</button>
-            <select id="rangeSelect" aria-label="学习范围">
-              <option value="all">全部词汇</option>
-              <option value="new">未掌握</option>
-              <option value="review">待复习</option>
-            </select>
+            <button class="ghost" id="randomBtn" type="button">随机</button>
             <button class="ghost" id="nextBtn" type="button">下一个</button>
           </div>
 
@@ -63,19 +82,39 @@
               <button class="speak" id="speakBtn" type="button" aria-label="朗读单词" title="朗读">音</button>
             </div>
             <p class="phonetic" id="phoneticText"></p>
-            <p class="definition" id="definitionText"></p>
+            <div class="definition-box hidden" id="definitionBox">
+              <p class="definition" id="definitionText"></p>
+              <button class="definition-mask" id="toggleDefinitionBtn" type="button">显示释义</button>
+            </div>
           </article>
 
-          <div class="action-row">
+          <div class="action-row three">
             <button class="secondary" id="reviewBtn" type="button">加入复习</button>
+            <button class="ghost" id="hideDefinitionBtn" type="button">隐藏释义</button>
             <button class="primary" id="knownBtn" type="button">已掌握</button>
           </div>
         </section>
 
         <section class="panel" id="quizView">
+          <div class="range-panel">
+            <label>
+              测试范围
+              <select id="quizRangeMode">
+                <option value="all">全部词汇</option>
+                <option value="new">未掌握</option>
+                <option value="review">复习本</option>
+                <option value="today">今日任务</option>
+                <option value="custom">自选序号</option>
+              </select>
+            </label>
+            <div class="number-pair" id="quizCustomRange">
+              <label>从 <input id="quizStart" type="number" min="1" value="1" /></label>
+              <label>到 <input id="quizEnd" type="number" min="1" value="100" /></label>
+            </div>
+          </div>
           <div class="quiz-head">
             <span id="quizProgress">0 / 0</span>
-            <button class="ghost" id="newQuizBtn" type="button">换一组</button>
+            <button class="ghost" id="newQuizBtn" type="button">随机换题</button>
           </div>
           <article class="quiz-card">
             <p class="quiz-prompt">选择这个释义对应的单词</p>
@@ -85,12 +124,66 @@
           </article>
         </section>
 
+        <section class="panel" id="reviewView">
+          <div class="section-head">
+            <div>
+              <h2>复习本</h2>
+              <p id="reviewSummary">0 个单词待复习</p>
+            </div>
+            <button class="ghost" id="reviewRandomBtn" type="button">随机复习</button>
+          </div>
+          <article class="word-card compact">
+            <div class="word-row">
+              <h2 id="reviewWordText">暂无</h2>
+              <button class="speak" id="reviewSpeakBtn" type="button" aria-label="朗读复习单词" title="朗读">音</button>
+            </div>
+            <p class="phonetic" id="reviewPhoneticText"></p>
+            <p class="definition" id="reviewDefinitionText"></p>
+          </article>
+          <div class="action-row three">
+            <button class="ghost" id="reviewPrevBtn" type="button">上一个</button>
+            <button class="secondary" id="stillReviewBtn" type="button">继续复习</button>
+            <button class="primary" id="reviewKnownBtn" type="button">已掌握</button>
+          </div>
+          <div class="word-list small-list" id="reviewList"></div>
+        </section>
+
         <section class="panel" id="listView">
           <label class="search-box">
             <span>查词</span>
             <input id="searchInput" type="search" placeholder="输入单词或中文释义" />
           </label>
-          <div class="word-list" id="wordList"></div>
+          <div class="list-wrap">
+            <div class="word-list" id="wordList"></div>
+            <div class="alpha-rail" id="alphaRail" aria-label="首字母索引"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="planView">
+          <section class="plan-card">
+            <div class="section-head">
+              <div>
+                <h2>今日计划</h2>
+                <p id="planStatus">设置每天要学的单词数量</p>
+              </div>
+              <span class="check-badge" id="checkBadge">未打卡</span>
+            </div>
+            <label class="goal-input">
+              每天任务量
+              <input id="dailyGoalInput" type="number" min="1" max="500" step="1" />
+            </label>
+            <div class="progress-bar" aria-label="今日进度">
+              <span id="goalProgressBar"></span>
+            </div>
+            <div class="action-row">
+              <button class="secondary" id="startTodayBtn" type="button">开始今日任务</button>
+              <button class="primary" id="checkinBtn" type="button">今日打卡</button>
+            </div>
+          </section>
+          <section class="plan-card">
+            <h2>今日任务词</h2>
+            <div class="word-list small-list" id="todayWordList"></div>
+          </section>
         </section>
       </main>
     </div>
