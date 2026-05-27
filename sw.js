@@ -1,9 +1,11 @@
-const CACHE_NAME = "cet4-vocab-v3";
+const CACHE_NAME = "cet4-vocab-v4";
 const APP_FILES = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./widget.html",
+  "./widget.js",
   "./manifest.webmanifest",
   "./data/words.json",
   "./assets/icon-192.png",

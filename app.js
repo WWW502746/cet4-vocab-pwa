@@ -80,6 +80,8 @@ const els = {
   startTodayBtn: document.querySelector("#startTodayBtn"),
   checkinBtn: document.querySelector("#checkinBtn"),
   todayWordList: document.querySelector("#todayWordList"),
+  widgetPreviewText: document.querySelector("#widgetPreviewText"),
+  widgetPreviewBar: document.querySelector("#widgetPreviewBar"),
   reminderStatus: document.querySelector("#reminderStatus"),
   reminderBadge: document.querySelector("#reminderBadge"),
   reminderToggle: document.querySelector("#reminderToggle"),
@@ -441,6 +443,8 @@ function renderPlan() {
   els.checkBadge.textContent = checked ? "已打卡" : "未打卡";
   els.checkBadge.classList.toggle("done", checked);
   els.checkinBtn.disabled = checked || done < goal;
+  els.widgetPreviewText.textContent = `${done} / ${goal}`;
+  els.widgetPreviewBar.style.width = `${Math.min(100, Math.round((done / goal) * 100))}%`;
   const ids = new Set(state.progress.dailyIds);
   const todayWords = state.words.filter((word) => ids.has(word.id));
   renderMiniList(els.todayWordList, todayWords, (word) => {
@@ -678,6 +682,10 @@ async function init() {
   renderList();
   buildQuiz();
   renderPlan();
+  const openView = new URLSearchParams(window.location.search).get("open");
+  if (openView && document.querySelector(`#${openView}View`)) {
+    switchView(openView);
+  }
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").then(() => scheduleReminder());
   }

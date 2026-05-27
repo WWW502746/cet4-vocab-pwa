@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#174a5a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="学习进度" />
+    <title>四级词汇进度</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="widget-body">
+    <main class="widget-shell">
+      <section class="desktop-widget">
+        <p class="eyebrow">CET-4 Today</p>
+        <div class="widget-title-row">
+          <h1>今日进度</h1>
+          <span id="widgetCheckBadge">未打卡</span>
+        </div>
+        <div class="widget-ring" aria-label="今日学习进度">
+          <span id="widgetPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <span id="widgetProgressBar"></span>
+        </div>
+        <div class="widget-stats">
+          <article>
+            <strong id="widgetTodayCount">0</strong>
+            <span>今日完成</span>
+          </article>
+          <article>
+            <strong id="widgetGoalCount">30</strong>
+            <span>今日目标</span>
+          </article>
+          <article>
+            <strong id="widgetKnownCount">0</strong>
+            <span>已掌握</span>
+          </article>
+          <article>
+            <strong id="widgetReviewCount">0</strong>
+            <span>复习本</span>
+          </article>
+        </div>
+        <p class="widget-note" id="widgetNote">打开主应用后数据会自动同步。</p>
+        <div class="action-row">
+          <a class="secondary link-button" href="./?open=plan">打开计划</a>
+          <a class="primary link-button" href="./">开始学习</a>
+        </div>
+      </section>
+    </main>
+    <script src="widget.js" type="module"></script>
+  </body>
+</html>
