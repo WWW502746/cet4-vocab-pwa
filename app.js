@@ -19,8 +19,13 @@ const state = {
     dailyGoal: 30,
     dailyIds: [],
     checkins: {},
+    reminderEnabled: false,
+    reminderTime: "20:00",
+    lastReminderDate: "",
   },
 };
+
+let reminderTimer = null;
 
 const els = {
   installBtn: document.querySelector("#installBtn"),
@@ -75,6 +80,12 @@ const els = {
   startTodayBtn: document.querySelector("#startTodayBtn"),
   checkinBtn: document.querySelector("#checkinBtn"),
   todayWordList: document.querySelector("#todayWordList"),
+  reminderStatus: document.querySelector("#reminderStatus"),
+  reminderBadge: document.querySelector("#reminderBadge"),
+  reminderToggle: document.querySelector("#reminderToggle"),
+  reminderTimeInput: document.querySelector("#reminderTimeInput"),
+  enableReminderBtn: document.querySelector("#enableReminderBtn"),
+  testReminderBtn: document.querySelector("#testReminderBtn"),
 };
 
 const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -100,6 +111,7 @@ function saveProgress() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
   renderStats();
   renderPlan();
+  scheduleReminder();
 }
 
 function ensureDailyPlan() {
@@ -438,12 +450,121 @@ function renderPlan() {
     switchView("learn");
     renderWord();
   });
+  renderReminder();
 }
 
 function checkin() {
   if (state.progress.todayCount < state.progress.dailyGoal) return;
   state.progress.checkins[todayKey()] = true;
   saveProgress();
+}
+
+function renderReminder() {
+  const permission = "Notification" in window ? Notification.permission : "unsupported";
+  const enabled = Boolean(state.progress.reminderEnabled);
+  els.reminderToggle.checked = enabled;
+  els.reminderTimeInput.value = state.progress.reminderTime || "20:00";
+  els.reminderBadge.textContent = enabled ? "已开启" : "未开启";
+  els.reminderBadge.classList.toggle("done", enabled);
+  els.enableReminderBtn.textContent = enabled ? "更新提醒" : "开启提醒";
+  if (permission === "unsupported") {
+    els.reminderStatus.textContent = "这个浏览器不支持网页通知，可以使用手机系统日历提醒。";
+    els.enableReminderBtn.disabled = true;
+    els.testReminderBtn.disabled = true;
+    return;
+  }
+  els.enableReminderBtn.disabled = false;
+  els.testReminderBtn.disabled = permission !== "granted";
+  if (!enabled) {
+    els.reminderStatus.textContent = "开启后会在设定时间提醒学习。";
+  } else if (permission === "granted") {
+    els.reminderStatus.textContent = `每天 ${state.progress.reminderTime} 提醒打卡。`;
+  } else if (permission === "denied") {
+    els.reminderStatus.textContent = "通知权限被拒绝，请在浏览器或系统设置里允许通知。";
+  } else {
+    els.reminderStatus.textContent = "需要允许通知权限后才能提醒。";
+  }
+}
+
+async function enableReminder() {
+  if (!("Notification" in window)) {
+    renderReminder();
+    return;
+  }
+  els.reminderToggle.checked = true;
+  const permission = Notification.permission === "granted"
+    ? "granted"
+    : await Notification.requestPermission();
+  state.progress.reminderTime = els.reminderTimeInput.value || "20:00";
+  state.progress.reminderEnabled = permission === "granted" && els.reminderToggle.checked;
+  saveProgress();
+  if (state.progress.reminderEnabled) {
+    showReminderNotification("提醒已开启", "到时间我会提醒你完成今天的四级词汇打卡。");
+  }
+}
+
+function toggleReminder() {
+  state.progress.reminderEnabled = els.reminderToggle.checked;
+  state.progress.reminderTime = els.reminderTimeInput.value || "20:00";
+  saveProgress();
+}
+
+function updateReminderTime() {
+  state.progress.reminderTime = els.reminderTimeInput.value || "20:00";
+  saveProgress();
+}
+
+function scheduleReminder() {
+  window.clearTimeout(reminderTimer);
+  if (!state.progress.reminderEnabled || !("Notification" in window) || Notification.permission !== "granted") return;
+  const delay = getReminderDelay();
+  reminderTimer = window.setTimeout(() => {
+    maybeSendDailyReminder();
+    scheduleReminder();
+  }, delay);
+}
+
+function getReminderDelay() {
+  const [hour, minute] = (state.progress.reminderTime || "20:00").split(":").map(Number);
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(hour || 20, minute || 0, 0, 0);
+  if (target <= now) target.setDate(target.getDate() + 1);
+  return Math.min(target.getTime() - now.getTime(), 2147483647);
+}
+
+function maybeSendDailyReminder() {
+  const checked = Boolean(state.progress.checkins[todayKey()]);
+  if (checked || state.progress.lastReminderDate === todayKey()) return;
+  showReminderNotification("四级词汇打卡提醒", "今天的学习任务还没完成，来背几个单词吧。");
+  state.progress.lastReminderDate = todayKey();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+  renderPlan();
+}
+
+function showReminderNotification(title, body) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.ready.then((registration) => {
+      registration.showNotification(title, {
+        body,
+        icon: "assets/icon-192.png",
+        badge: "assets/icon-192.png",
+        tag: "cet4-daily-reminder",
+        data: { url: "./" },
+      });
+    });
+    return;
+  }
+  new Notification(title, {
+    body,
+    icon: "assets/icon-192.png",
+    tag: "cet4-daily-reminder",
+  });
+}
+
+function testReminder() {
+  showReminderNotification("四级词汇提醒测试", "通知可以正常显示。");
 }
 
 function escapeHtml(value) {
@@ -524,6 +645,10 @@ function bindEvents() {
     renderWord();
   });
   els.checkinBtn.addEventListener("click", checkin);
+  els.reminderToggle.addEventListener("change", toggleReminder);
+  els.reminderTimeInput.addEventListener("change", updateReminderTime);
+  els.enableReminderBtn.addEventListener("click", enableReminder);
+  els.testReminderBtn.addEventListener("click", testReminder);
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
@@ -554,8 +679,10 @@ async function init() {
   buildQuiz();
   renderPlan();
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
+    navigator.serviceWorker.register("sw.js").then(() => scheduleReminder());
   }
+  maybeSendDailyReminder();
+  scheduleReminder();
 }
 
 init();

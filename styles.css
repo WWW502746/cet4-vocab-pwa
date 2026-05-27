@@ -463,6 +463,21 @@ input {
   max-width: 160px;
 }
 
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.toggle-row input {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  accent-color: var(--green);
+}
+
 .progress-bar {
   height: 12px;
   margin: 16px 0 6px;

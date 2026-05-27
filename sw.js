@@ -1,4 +1,4 @@
-const CACHE_NAME = "cet4-vocab-v2";
+const CACHE_NAME = "cet4-vocab-v3";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -36,5 +36,17 @@ self.addEventListener("fetch", (event) => {
         return response;
       })
     )),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || "./";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      const client = clients.find((item) => item.url.includes(self.location.origin));
+      if (client) return client.focus();
+      return self.clients.openWindow(targetUrl);
+    }),
   );
 });
