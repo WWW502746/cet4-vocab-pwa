@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#174a5a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="四级词汇" />
+    <title>四级词汇学习</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">CET-4 Vocabulary</p>
+          <h1>四级词汇学习</h1>
+        </div>
+        <button class="icon-button" id="installBtn" type="button" aria-label="安装到桌面" title="安装到桌面">
+          <span aria-hidden="true">+</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="stats-grid" aria-label="学习进度">
+          <article>
+            <span id="learnedCount">0</span>
+            <small>已掌握</small>
+          </article>
+          <article>
+            <span id="reviewCount">0</span>
+            <small>待复习</small>
+          </article>
+          <article>
+            <span id="todayCount">0</span>
+            <small>今日学习</small>
+          </article>
+        </section>
+
+        <nav class="tabs" aria-label="模式">
+          <button class="tab active" data-view="learn" type="button">学习</button>
+          <button class="tab" data-view="quiz" type="button">测试</button>
+          <button class="tab" data-view="list" type="button">词表</button>
+        </nav>
+
+        <section class="panel active" id="learnView">
+          <div class="deck-controls">
+            <button class="ghost" id="prevBtn" type="button">上一个</button>
+            <select id="rangeSelect" aria-label="学习范围">
+              <option value="all">全部词汇</option>
+              <option value="new">未掌握</option>
+              <option value="review">待复习</option>
+            </select>
+            <button class="ghost" id="nextBtn" type="button">下一个</button>
+          </div>
+
+          <article class="word-card" id="wordCard">
+            <div class="word-row">
+              <h2 id="wordText">Loading</h2>
+              <button class="speak" id="speakBtn" type="button" aria-label="朗读单词" title="朗读">音</button>
+            </div>
+            <p class="phonetic" id="phoneticText"></p>
+            <p class="definition" id="definitionText"></p>
+          </article>
+
+          <div class="action-row">
+            <button class="secondary" id="reviewBtn" type="button">加入复习</button>
+            <button class="primary" id="knownBtn" type="button">已掌握</button>
+          </div>
+        </section>
+
+        <section class="panel" id="quizView">
+          <div class="quiz-head">
+            <span id="quizProgress">0 / 0</span>
+            <button class="ghost" id="newQuizBtn" type="button">换一组</button>
+          </div>
+          <article class="quiz-card">
+            <p class="quiz-prompt">选择这个释义对应的单词</p>
+            <h2 id="quizDefinition"></h2>
+            <div class="options" id="quizOptions"></div>
+            <p class="feedback" id="quizFeedback" aria-live="polite"></p>
+          </article>
+        </section>
+
+        <section class="panel" id="listView">
+          <label class="search-box">
+            <span>查词</span>
+            <input id="searchInput" type="search" placeholder="输入单词或中文释义" />
+          </label>
+          <div class="word-list" id="wordList"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
